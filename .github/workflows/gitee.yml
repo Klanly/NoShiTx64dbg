@@ -1,24 +1,35 @@
-name: Gitee sync
+name: msdxc
 
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      opencv-version:
+        description: dxc
+        required: true
+        default: 4.5.2
 
 jobs:
-  gitee-push:
-    runs-on: windows-2019
-    env:
-      GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
-      GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+  publish_windows_x64:
+    runs-on: windows-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 100
-      
-      - name: Push to gitee
+            repository: Klanly/NoShiTx64dbg
+            submodules: true
+
+      - name: tocmd
         run: |
-          git remote add gitee "https://${{ env.GITEE_USERNAME }}:${{ env.GITEE_TOKEN }}@gitee.com/${{ github.repository }}.git"
-          git push --force gitee "${{ github.ref }}"
-          git remote remove gitee
+          build.bat x64
+          release.bat
+        shell: cmd
+      
+      
+      - name: Upload AssetRipper Windows x64
+        uses: actions/upload-artifact@v3
+        with:
+          name: x86rel
+          path: D:\a\buildcv\buildcv\release
+          if-no-files-found: error
 
-
-    
+ 
